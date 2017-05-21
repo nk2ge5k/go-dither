@@ -16,15 +16,14 @@ type FloydSteinberg struct {
 }
 
 func colorVal(c color.Color) int64 {
-	g := color.Gray16Model.Convert(c).RGBA()
+	v, _, _, _ := color.Gray16Model.Convert(c).RGBA()
 	return int64(v)
 }
 
 func (a *FloydSteinberg) getColor(c color.Color, x, y int) color.Color {
-	var (
-		v int64 = a.colorVal(v) + m.Error[0][x]
-		y int   = 0
-	)
+	var v int64 = colorVal(c) + a.Error[0][x]
+
+	y = 0
 
 	if v >= c_G {
 		v -= c_W
@@ -39,8 +38,8 @@ func (a *FloydSteinberg) getColor(c color.Color, x, y int) color.Color {
 	} {
 		y, x, m := d[0], d[1], d[2]
 
-		if x >= 0 && len(m.Error[y]) > x {
-			m.Error[y][x] += v * int64(m)
+		if x >= 0 && len(a.Error[y]) > x {
+			a.Error[y][x] += (v / 16) * int64(m)
 		}
 	}
 
@@ -63,7 +62,9 @@ func (a *FloydSteinberg) Dither(i image.Image) image.Image {
 			out.Set(x, y, a.getColor(i.At(x, y), x, y))
 		}
 
-		a.Error[0] = m.Error[1]
+		a.Error[0] = a.Error[1]
 		a.Error[1] = make([]int64, w)
 	}
+
+	return out
 }
